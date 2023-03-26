@@ -1,6 +1,6 @@
 package com.example.chatonelive.controller;
 
-import com.example.chatonelive.domain.WebSocketChatMessage;
+import com.example.chatonelive.domain.ChatMessage;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -11,16 +11,17 @@ import org.springframework.stereotype.Controller;
 public class WebSocketChatController {
 
     @MessageMapping("/chat.sendMessage")
-    @SendTo("/topic/chatOne")
-    public WebSocketChatMessage sendMessage(@Payload WebSocketChatMessage webSocketChatMessage) {
-        return webSocketChatMessage;
+    @SendTo("/topic/public")
+    public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {
+        return chatMessage;
     }
 
-    @MessageMapping("/chat.newUser")
-    @SendTo("/topic/chatOne")
-    public WebSocketChatMessage newUser(@Payload WebSocketChatMessage webSocketChatMessage,
-                                        SimpMessageHeaderAccessor headerAccessor) {
-        headerAccessor.getSessionAttributes().put("username", webSocketChatMessage.getSender());
-        return webSocketChatMessage;
+    @MessageMapping("/chat.addUser")
+    @SendTo("/topic/public")
+    public ChatMessage addUser(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
+
+        headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
+        return chatMessage;
     }
+
 }
