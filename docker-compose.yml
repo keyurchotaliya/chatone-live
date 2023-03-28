@@ -1,13 +1,36 @@
 version: "3.8"
 services:
-  rabbitmq3:
-    container_name: "rabbitmq"
+  rabbitmq-container:
     image: rabbitmq:3.8-management-alpine
+    hostname: rabbitmq-container
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
     ports:
-      # AMQP protocol port
-      - '5672:5672'
-      # HTTP management UI
-      - '15672:15672'
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - resolute
+
+  C-container:
+    image: chatone-live
+    ports:
+      - 8080:8080
+    environment:
+      - spring_rabbitmq_host=rabbitmq-container
+      - spring_rabbitmq_port=5672
+      - spring_rabbitmq_username=guest
+      - spring_rabbitmq_password=guest
+      - resolute_rabbitmq_publishQueueName=resolute-run-request
+      - resolute_rabbitmq_exchange=resolute
+    depends_on:
+      - rabbitmq-container
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - resolute
+
+networks:
+  resolute:
+    external:
+      name: resolute
